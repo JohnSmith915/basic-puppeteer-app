@@ -3,6 +3,31 @@ import express from "express";
 
 const app = express();
 
+import fs from "fs";
+import path from "path";
+
+function logProjectStructure(startFile) {
+    const rootDir = path.dirname(path.resolve(startFile));
+
+    function walk(dir, indent = "") {
+        const items = fs.readdirSync(dir, { withFileTypes: true }).filter((item) => item.name !== "node_modules");
+
+        for (let i = 0; i < items.length; i++) {
+            const item = items[i];
+            const isLast = i === items.length - 1;
+            const pointer = isLast ? "└─ " : "├─ ";
+
+            console.log(indent + pointer + item.name);
+
+            if (item.isDirectory()) {
+                const newIndent = indent + (isLast ? "   " : "│  ");
+                walk(path.join(dir, item.name), newIndent);
+            }
+        }
+    }
+
+    walk(rootDir);
+}
 (async () => {
     const port = process.env.PORT || 8080;
     // Start the server
@@ -10,12 +35,15 @@ const app = express();
         console.log(`Server is running on port ${port}`);
     });
 
+    // Example usage (assuming entry point is index.js)
+    logProjectStructure("index.js");
+
     console.log("main func");
     const browser = await puppeteer.launch({
         headless: true, // Run the browser in headless mode
         args: ["--single-process", "--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--no-zygote", "--disable-dev-shm-usage"],
         disableXvfb: true,
-        executablePath: "./google-chrome-stable",
+        // executablePath: "./google-chrome-stable",
         timeout: 60000,
     });
     console.log("browser started");
