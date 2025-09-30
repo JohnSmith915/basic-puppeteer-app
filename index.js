@@ -4,6 +4,12 @@ import express from "express";
 const app = express();
 
 (async () => {
+    const port = process.env.PORT || 3000;
+    // Start the server
+    app.listen(port, () => {
+        console.log(`Server is running on port ${port}`);
+    });
+
     console.log("main func");
     const browser = await puppeteer.launch({
         headless: true, // Run the browser in headless mode
@@ -27,11 +33,5 @@ const app = express();
             // instead of blowing up, just send text back
             res.status(500).send("Screenshot unavailable (page may be reloading)");
         }
-    });
-
-    const port = process.env.PORT || 8080;
-    // Start the server
-    app.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
     });
 })();
