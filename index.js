@@ -16,7 +16,7 @@ const app = express();
         args: ["--single-process", "--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--no-zygote", "--disable-dev-shm-usage"],
         disableXvfb: true,
         executablePath: "./google-chrome-stable",
-        timeout: 0,
+        timeout: 60000,
     });
     console.log("browser started");
 
