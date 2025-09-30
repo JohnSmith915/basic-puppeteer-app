@@ -6,8 +6,9 @@ const app = express();
 import fs from "fs";
 import path from "path";
 
-function logProjectStructure(startFile) {
+function getProjectStructure(startFile) {
     const rootDir = path.dirname(path.resolve(startFile));
+    let result = "";
 
     function walk(dir, indent = "") {
         const items = fs.readdirSync(dir, { withFileTypes: true }).filter((item) => item.name !== "node_modules");
@@ -17,7 +18,7 @@ function logProjectStructure(startFile) {
             const isLast = i === items.length - 1;
             const pointer = isLast ? "└─ " : "├─ ";
 
-            console.log(indent + pointer + item.name);
+            result += indent + pointer + item.name + "\n";
 
             if (item.isDirectory()) {
                 const newIndent = indent + (isLast ? "   " : "│  ");
@@ -27,6 +28,7 @@ function logProjectStructure(startFile) {
     }
 
     walk(rootDir);
+    return result.trim();
 }
 (async () => {
     const port = process.env.PORT || 8080;
@@ -35,15 +37,16 @@ function logProjectStructure(startFile) {
         console.log(`Server is running on port ${port}`);
     });
 
-    // Example usage (assuming entry point is index.js)
-    logProjectStructure("index.js");
+    app.get("/file", (req, res) => {
+        res.type("text/plain").send(getProjectStructure(process.cwd()));
+    });
 
     console.log("main func");
     const browser = await puppeteer.launch({
         headless: true, // Run the browser in headless mode
         args: ["--single-process", "--no-sandbox", "--disable-setuid-sandbox", "--disable-gpu", "--no-zygote", "--disable-dev-shm-usage"],
         disableXvfb: true,
-        // executablePath: "./google-chrome-stable",
+        executablePath: "./google-chrome-stable",
         timeout: 60000,
     });
     console.log("browser started");
